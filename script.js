@@ -1,23 +1,18 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyHxqxlp4uiNcp3_oZy1DVbcNKuQU0Fm208Zf4wLgUPhlQ339ml-ykvXBDWUqEPgJkw/exec";
+const API_URL = "PASTE_YOUR_DEPLOYMENT_URL_HERE";
 
 let selectedBin = "";
 let isLocked = false;
 
 /* ================= LOAD BINS ================= */
 function loadBins() {
-
     fetch(API_URL + "?mode=bins")
     .then(res => res.json())
     .then(data => {
-
         let select = document.getElementById("binSelect");
-
         select.innerHTML = "<option value=''>Select Bin</option>";
-
         data.forEach(bin => {
             select.innerHTML += `<option value="${bin.id}">${bin.id}</option>`;
         });
-
     });
 }
 
@@ -25,21 +20,26 @@ function loadBins() {
 function loadSelectedBin() {
 
     selectedBin = document.getElementById("binSelect").value;
-
     if (!selectedBin) return;
 
-    fetch(API_URL + "?bin=" + selectedBin)
+    fetch(API_URL + "?bin=" + selectedBin + "&t=" + Date.now())
     .then(res => res.json())
     .then(data => {
 
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        document.getElementById("selectWrap").style.display = "none";
         document.getElementById("binInfo").style.display = "block";
 
         document.getElementById("block").innerText = "Block: " + data.bin.block;
         document.getElementById("floor").innerText = "Floor: " + data.bin.floor;
         document.getElementById("location").innerText = "Location: " + data.bin.location;
-
         document.getElementById("dutyPerson").innerText = data.duty;
         document.getElementById("status").innerText = "Status: " + data.status;
+        document.getElementById("lastUpdated").innerText = data.lastUpdated;
 
         loadHistory(data.history);
     });
@@ -52,7 +52,6 @@ function markClean() {
     isLocked = true;
 
     let btn = document.getElementById("cleanBtn");
-
     btn.disabled = true;
     btn.innerText = "Saving...";
 
@@ -74,8 +73,8 @@ function markClean() {
 
         document.getElementById("status").innerText = "Status: CLEAN";
 
-        document.getElementById("lastUpdated").innerText =
-            new Date().toLocaleString();
+        // reload fresh data (updates last updated + history properly)
+        loadSelectedBin();
 
         setTimeout(() => {
             btn.disabled = false;
@@ -98,8 +97,7 @@ function loadHistory(history) {
 
     let html = "";
 
-    history.reverse().forEach(item => {
-
+    history.slice().reverse().forEach(item => {
         html += `
         <div class="history-item">
             📅 ${item.date} | ⏰ ${item.time}<br>
@@ -109,7 +107,7 @@ function loadHistory(history) {
         `;
     });
 
-    document.getElementById("history").innerHTML = html;
+    document.getElementById("history").innerHTML = html || "No history yet";
 }
 
 /* ================= INIT ================= */
