@@ -1,4 +1,4 @@
-const API_URL = "YOUR_GOOGLE_SCRIPT_URL";
+const API_URL = "https://script.google.com/macros/s/AKfycbyAiF1pMgeVoKa3rrfwA1p7gntEfAIXcczIP9yKB8mRXKxhKxPcB2KbDIhs1BqwJXsQ/exec";
 
 let scannedBin = "";
 let isLocked = false;
