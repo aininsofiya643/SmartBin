@@ -1,122 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Smart Bin A2-2</title>
-
-<style>
-body {
-    font-family: Arial;
-    background: #f2f2f2;
-    margin: 0;
-    padding: 0;
-}
-
-.card {
-    width: 420px;
-    margin: 40px auto;
-    background: white;
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: 0 0 12px rgba(0,0,0,0.15);
-    text-align: center;
-}
-
-.title {
-    font-size: 26px;
-    font-weight: bold;
-}
-
-.line {
-    border-top: 1px solid #ccc;
-    margin: 15px 0;
-}
-
-.section-title {
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-.status {
-    color: green;
-    font-weight: bold;
-    font-size: 18px;
-}
-
-button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 15px;
-    background: #2d89ef;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #1b6fce;
-}
-
-button:disabled {
-    background: gray;
-    cursor: not-allowed;
-}
-
-.history {
-    text-align: left;
-    margin-top: 10px;
-}
-
-.history-item {
-    background: #f7f7f7;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    font-size: 13px;
-}
-
-.small {
-    font-size: 12px;
-    color: gray;
-}
-</style>
-</head>
-
-<body>
-
-<div class="card">
-
-    <div class="title">SMART BIN A2-2</div>
-
-    <div class="line"></div>
-
-    <div class="section-title">Block: A</div>
-    <div class="section-title">Floor: 2</div>
-    <div class="section-title">Location: Near Toilet</div>
-
-    <div class="line"></div>
-
-    <div class="section-title">👷 On Duty Today</div>
-    <div id="dutyPerson">Kumar</div>
-
-    <div class="line"></div>
-
-    <div class="status" id="status">Status: CLEAN</div>
-
-    <div class="small">
-        Last Updated: <span id="lastUpdated">--</span>
-    </div>
-
-    <button id="cleanBtn" onclick="markClean()">Mark as CLEANED</button>
-
-    <div class="line"></div>
-
-    <div class="section-title">📜 Cleaning History</div>
-    <div class="history" id="history">Loading...</div>
-
-</div>
-
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbzgMOftbQTufUGJPS3GhfHKd-h_ob71UXU2Xh1u6peISWgerApm9v2B4fEJMpzesNYe/exec";
@@ -126,7 +7,7 @@ let isLocked = false;
 // ---------------- CLEAN BUTTON ----------------
 function markClean() {
 
-    if (isLocked) return; // ❌ prevent spam clicks
+    if (isLocked) return; // STOP DOUBLE CLICK
 
     isLocked = true;
 
@@ -136,7 +17,8 @@ function markClean() {
 
     let now = new Date();
 
-    let data = {
+    // FIXED TIME FORMAT BEFORE SEND
+    let payload = {
         date: now.toISOString(),
         time: now.toISOString(),
         bin: "A2-2",
@@ -146,17 +28,19 @@ function markClean() {
 
     fetch(API_URL, {
         method: "POST",
-        body: JSON.stringify(data)
+        body: JSON.stringify(payload)
     })
     .then(res => res.text())
-    .then(() => {
+    .then((res) => {
+
+        console.log(res);
 
         document.getElementById("status").innerText = "Status: CLEAN";
         document.getElementById("lastUpdated").innerText = formatTime(now);
 
         loadHistory();
 
-        // ✅ LOCK PERMANENTLY AFTER SUCCESS
+        // LOCK FOREVER AFTER SUCCESS
         btn.innerText = "Already CLEANED";
         btn.style.background = "gray";
         btn.disabled = true;
@@ -187,7 +71,7 @@ function loadHistory() {
 
             html += `
                 <div class="history-item">
-                    📅 ${d.toLocaleDateString()} | ⏰ ${formatTime(d)}<br>
+                    📅 ${formatDate(d)} | ⏰ ${formatTime(d)}<br>
                     🗑 Bin: ${item.bin}<br>
                     👷 ${item.cleaner} | ${item.status}
                 </div>
@@ -203,7 +87,17 @@ function loadHistory() {
     });
 }
 
-// ---------------- TIME FORMAT (6:12 AM) ----------------
+// ---------------- FIX DATE FORMAT (DD/MM/YYYY) ----------------
+function formatDate(date) {
+
+    let d = date.getDate();
+    let m = date.getMonth() + 1;
+    let y = date.getFullYear();
+
+    return `${d.toString().padStart(2,'0')}/${m.toString().padStart(2,'0')}/${y}`;
+}
+
+// ---------------- FIX TIME FORMAT (3:14 AM) ----------------
 function formatTime(date) {
 
     let h = date.getHours();
@@ -214,14 +108,11 @@ function formatTime(date) {
     h = h % 12;
     h = h ? h : 12;
 
-    m = m < 10 ? "0" + m : m;
+    m = m.toString().padStart(2, '0');
 
-    return h + ":" + m + " " + ampm;
+    return `${h}:${m} ${ampm}`;
 }
 
 window.onload = loadHistory;
 
 </script>
-
-</body>
-</html>
