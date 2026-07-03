@@ -1,69 +1,109 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Smart Bin</title>
+<title>Smart Bin A2-2</title>
+
 <style>
 body {
     font-family: Arial;
+    background: #f2f2f2;
     text-align: center;
 }
-.container {
-    width: 400px;
-    margin: auto;
+
+.card {
+    background: white;
+    width: 420px;
+    margin: 30px auto;
     padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
+    border-radius: 15px;
+    box-shadow: 0px 0px 10px #ccc;
 }
-.history-item {
-    background: #f5f5f5;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 8px;
-    text-align: left;
+
+h2 {
+    margin: 5px;
 }
+
+.status-clean {
+    color: green;
+    font-weight: bold;
+}
+
 button {
-    padding: 10px 20px;
-    background: blue;
+    width: 100%;
+    padding: 12px;
+    background: #3498db;
     color: white;
     border: none;
+    border-radius: 8px;
     cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #2980b9;
+}
+
+.history-box {
+    text-align: left;
+    margin-top: 15px;
+}
+
+.history-item {
+    background: #f7f7f7;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.small {
+    color: gray;
+    font-size: 12px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="card">
 
-<h2>SMART BIN A2-2</h2>
+    <h2>🗑 SMART BIN A2-2</h2>
 
-<h3>👷 On Duty Today</h3>
-<p id="dutyPerson">Kumar</p>
+    <p><b>Block:</b> A</p>
+    <p><b>Floor:</b> 2</p>
+    <p><b>Location:</b> Near Toilet</p>
 
-<h3>Status: <span id="status">CLEAN</span></h3>
-<p>Last Updated: <span id="lastUpdated">--</span></p>
+    <hr>
 
-<button onclick="markClean()">Mark as CLEANED</button>
+    <h3>👷 On Duty Today</h3>
+    <h3 id="dutyPerson">Kumar</h3>
 
-<hr>
+    <hr>
 
-<h3>📜 Cleaning History</h3>
-<div id="history">Loading...</div>
+    <h3 class="status-clean" id="status">Status: CLEAN</h3>
+    <p class="small">Last Updated: <span id="lastUpdated">--</span></p>
+
+    <button onclick="markClean()">Mark as CLEANED</button>
+
+    <hr>
+
+    <h3>📜 Cleaning History</h3>
+    <div class="history-box" id="history">Loading...</div>
 
 </div>
 
 <script>
 
-// 🔥 YOUR CORRECT API
+// 🔥 YOUR WORKING API
 const API_URL = "https://script.google.com/macros/s/AKfycbxuxjYrmNr-FHJchOB0W5O-1pLGudOATw6K-M8vgorNuD0Cv87ElImjQdt89leOc_gP/exec";
 
-// prevent double click
-let isSending = false;
+let lock = false;
 
+// ------------------ MARK CLEAN ------------------
 function markClean() {
 
-    if (isSending) return;
-    isSending = true;
+    if (lock) return;
+    lock = true;
 
     let now = new Date();
 
@@ -82,23 +122,20 @@ function markClean() {
     .then(res => res.text())
     .then(() => {
 
-        document.getElementById("status").innerText = "CLEAN";
+        document.getElementById("status").innerText = "Status: CLEAN";
         document.getElementById("lastUpdated").innerText = formatTime(now);
 
         loadHistory();
 
-        setTimeout(() => {
-            isSending = false;
-        }, 10000); // 10 sec anti-duplicate
-
+        setTimeout(() => lock = false, 8000);
     })
     .catch(err => {
         console.log(err);
-        isSending = false;
+        lock = false;
     });
 }
 
-// ✅ FIXED HISTORY LOADING
+// ------------------ LOAD HISTORY ------------------
 function loadHistory() {
 
     fetch(API_URL + "?t=" + Date.now())
@@ -130,20 +167,20 @@ function loadHistory() {
     });
 }
 
-// ⏰ CLEAN TIME FORMAT (6:12 AM)
+// ------------------ TIME FORMAT ------------------
 function formatTime(date) {
 
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
+    let h = date.getHours();
+    let m = date.getMinutes();
 
-    let ampm = hours >= 12 ? "PM" : "AM";
+    let ampm = h >= 12 ? "PM" : "AM";
 
-    hours = hours % 12;
-    hours = hours ? hours : 12;
+    h = h % 12;
+    h = h ? h : 12;
 
-    minutes = minutes < 10 ? "0" + minutes : minutes;
+    m = m < 10 ? "0" + m : m;
 
-    return hours + ":" + minutes + " " + ampm;
+    return h + ":" + m + " " + ampm;
 }
 
 // auto load
