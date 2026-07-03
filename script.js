@@ -17,10 +17,16 @@ function loadBins() {
 }
 
 /* ================= LOAD SELECTED BIN ================= */
+/* ================= LOAD SELECTED BIN ================= */
 function loadSelectedBin() {
 
     selectedBin = document.getElementById("binSelect").value;
     if (!selectedBin) return;
+
+    let loadBtn = document.getElementById("loadBtn");
+    loadBtn.disabled = true;
+    loadBtn.innerText = "Loading...";
+    loadBtn.classList.add("loading-btn");
 
     fetch(API_URL + "?bin=" + selectedBin + "&t=" + Date.now())
     .then(res => res.json())
@@ -28,11 +34,17 @@ function loadSelectedBin() {
 
         if (data.error) {
             alert(data.error);
+            loadBtn.disabled = false;
+            loadBtn.innerText = "Load Bin";
+            loadBtn.classList.remove("loading-btn");
             return;
         }
 
         document.getElementById("selectWrap").style.display = "none";
-        document.getElementById("binInfo").style.display = "block";
+
+        let binInfo = document.getElementById("binInfo");
+        binInfo.style.display = "block";
+        binInfo.classList.add("fade-in");
 
         document.getElementById("block").innerText = "Block: " + data.bin.block;
         document.getElementById("floor").innerText = "Floor: " + data.bin.floor;
@@ -42,9 +54,15 @@ function loadSelectedBin() {
         document.getElementById("lastUpdated").innerText = data.lastUpdated;
 
         loadHistory(data.history);
+    })
+    .catch(err => {
+        console.log(err);
+        alert("Failed to load bin. Please try again.");
+        loadBtn.disabled = false;
+        loadBtn.innerText = "Load Bin";
+        loadBtn.classList.remove("loading-btn");
     });
 }
-
 /* ================= CLEAN BUTTON ================= */
 function markClean() {
 
