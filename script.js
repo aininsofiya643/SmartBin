@@ -18,28 +18,41 @@ function getBinFromURL() {
 }
 
 /* ================= LOAD BIN INFO ================= */
-function loadBin(bin) {
+function loadBin(data){
 
-    scannedBin = bin;
+    scannedBin = data.bin.id;
 
-    const info = bins[bin];
+    document.getElementById("binTitle").innerText =
+        "SMART BIN " + data.bin.id;
 
-    if (!info) {
-        document.getElementById("binTitle").innerText = "UNKNOWN BIN";
-        return;
-    }
+    document.getElementById("block").innerText =
+        "Block : " + data.bin.block;
 
-    document.getElementById("binTitle").innerText = "SMART BIN " + bin;
+    document.getElementById("floor").innerText =
+        "Floor : " + data.bin.floor;
 
-    document.getElementById("block").innerText = "Block: " + info.block;
-    document.getElementById("floor").innerText = "Floor: " + info.floor;
-    document.getElementById("location").innerText = "Location: " + info.location;
+    document.getElementById("location").innerText =
+        "Location : " + data.bin.location;
 
     document.getElementById("binInfo").style.display = "block";
 
-    refreshHistory();
-}
+    // Populate cleaner dropdown
+    let select = document.getElementById("cleanerSelect");
 
+    select.innerHTML = "";
+
+    data.cleaners.forEach(function(cleaner){
+
+        select.innerHTML +=
+        `<option value="${cleaner}">
+            ${cleaner}
+        </option>`;
+
+    });
+
+    loadHistory(data.history);
+
+}
 /* ================= CLEAN BUTTON ================= */
 function markClean() {
 
@@ -52,7 +65,7 @@ function markClean() {
 
     let payload = {
         bin: scannedBin,
-        cleaner: document.getElementById("dutyPerson").innerText,
+       cleaner: document.getElementById("cleanerSelect").value,
         status: "CLEANED"
     };
 
@@ -81,44 +94,55 @@ function markClean() {
 }
 
 /* ================= HISTORY ================= */
-function refreshHistory() {
+function loadHistory(history){
 
-    fetch(API_URL + "?t=" + Date.now())
-    .then(res => res.json())
-    .then(data => {
+    let html = "";
 
-        let html = "";
+    history.reverse().forEach(function(item){
 
-        data
-        .filter(item => item.bin === scannedBin)
-        .reverse()
-        .forEach(item => {
+        html += `
+        <div class="history-item">
+            📅 ${item.date} | ⏰ ${item.time}<br>
+            🗑 Bin: ${item.bin}<br>
+            👷 ${item.cleaner} | ${item.status}
+        </div>
+        `;
 
-            html += `
-                <div class="history-item">
-                    📅 ${item.date} | ⏰ ${item.time}<br>
-                    🗑 Bin: ${item.bin}<br>
-                    👷 ${item.cleaner} | ${item.status}
-                </div>
-            `;
-        });
-
-        document.getElementById("history").innerHTML = html;
     });
+
+    document.getElementById("history").innerHTML = html;
+
 }
 
 /* ================= INIT ================= */
-window.onload = function () {
+window.onload = function(){
 
-    const bin = getBinFromURL();
+    const params = new URLSearchParams(window.location.search);
 
-    if (bin) {
-        loadBin(bin);
-    } else {
-        document.getElementById("binTitle").innerText = "NO BIN SCANNED";
+    const bin = params.get("bin");
+
+    if(!bin){
+
+        document.getElementById("binTitle").innerText =
+        "NO BIN SELECTED";
+
+        return;
     }
 
-    refreshHistory();
-};
+    fetch(API_URL + "?bin=" + bin)
 
-setInterval(refreshHistory, 5000);
+    .then(res => res.json())
+
+    .then(data => {
+
+        loadBin(data);
+
+    })
+
+    .catch(err => {
+
+        console.log(err);
+
+    });
+
+};
