@@ -53,11 +53,12 @@ function startScanner() {
             { fps: 10, qrbox: 250 },
             (decodedText) => {
 
-                scannedBin = decodedText.replace("SMARTBIN:", "");
+             scannedBin = decodedText.replace("SMARTBIN:", "");
 
-                html5QrCode.stop();
+// ✅ UPDATE URL so system knows bin exists
+window.history.pushState({}, "", "?bin=" + scannedBin);
 
-                loadBin(scannedBin);
+loadBin(scannedBin);
             }
         );
 
