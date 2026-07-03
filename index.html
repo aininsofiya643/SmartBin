@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Bin A2-2</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f2f2f2;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            width: 380px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        .status {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+
+        .clean {
+            color: green;
+            font-weight: bold;
+        }
+
+        .full {
+            color: red;
+            font-weight: bold;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            background: #2980b9;
+        }
+
+        .history-box {
+            margin-top: 15px;
+            text-align: left;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: #eee;
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h1>SMART BIN A2-2</h1>
+
+    <p><b>Block:</b> A</p>
+    <p><b>Floor:</b> 2</p>
+    <p><b>Location:</b> Near Toilet</p>
+
+    <hr>
+
+    <!-- ON DUTY -->
+    <h3>👷 On Duty Today</h3>
+    <p id="dutyPerson">Loading...</p>
+
+    <hr>
+
+    <!-- STATUS -->
+    <p id="status" class="status full">Status: FULL</p>
+
+    <p><b>Last Updated:</b></p>
+    <p id="time">Not yet cleaned</p>
+
+    <button id="cleanBtn" onclick="markClean()">Mark as CLEANED</button>
+
+    <hr>
+
+    <!-- HISTORY -->
+    <h3>📜 Cleaning History</h3>
+    <div id="history" class="history-box"></div>
+
+</div>
+
+<script>
+
+const API_URL = "https://script.google.com/macros/s/AKfycbyhrFNGqiBcj5V7O1T7wAi2s7VU7o_Ei4KhR7ZP9HyZgm54mshXY4T5_IwFHlRVrVuz/exec";
+
+let isSending = false;
+
+
+// =====================
+// TIME FORMAT FIX (6:12 AM)
+// =====================
+function formatTime(date) {
+
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? 'PM' : 'AM';
+
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+
+    return hours + ':' + minutes + ' ' + ampm;
+}
+
+
+// =====================
+// DUTY SYSTEM
+// =====================
+function getDutyPerson() {
+
+    const day = new Date().getDay();
+
+    let person = "";
+
+    if (day === 1) person = "Ahmad";
+    else if (day === 2) person = "Ali";
+    else if (day === 3) person = "Siti";
+    else if (day === 4) person = "John";
+    else if (day === 5) person = "Kumar";
+    else if (day === 6) person = "Sarah";
+    else person = "Off Duty";
+
+    document.getElementById("dutyPerson").innerHTML = person;
+
+    return person;
+}
+
+
+// =====================
+// MARK AS CLEANED (ANTI DUPLICATE)
+// =====================
+function markClean() {
+
+    if (isSending) return;
+
+    isSending = true;
+
+    document.getElementById("cleanBtn").disabled = true;
+
+    let now = new Date();
+    let dutyPerson = getDutyPerson();
+
+    let data = {
+        date: now.toLocaleDateString(),
+        time: formatTime(now),
+        bin: "A2-2",
+        cleaner: dutyPerson,
+        status: "CLEANED"
+    };
+
+    fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(data)
+    })
+    .then(res => res.text())
+    .then(result => {
+
+        alert("Saved to Google Sheets!");
+
+        loadHistory();
+
+        setTimeout(() => {
+            isSending = false;
+            document.getElementById("cleanBtn").disabled = false;
+        }, 3000);
+    })
+    .catch(err => {
+        alert("Error sending data");
+        console.log(err);
+
+        isSending = false;
+        document.getElementById("cleanBtn").disabled = false;
+    });
+
+    document.getElementById("status").innerHTML = "Status: CLEAN";
+    document.getElementById("status").className = "status clean";
+
+    document.getElementById("time").innerHTML = formatTime(now);
+}
+
+
+// =====================
+// LOAD HISTORY (FIXED)
+// =====================
+function loadHistory() {
+
+    fetch(API_URL + "?test=" + new Date().getTime())
+    .then(async (res) => {
+
+        let text = await res.text();
+        console.log("RAW RESPONSE:", text);
+
+        try {
+            let data = JSON.parse(text);
+
+            let html = "";
+
+            data.reverse().forEach(item => {
+                html += `
+                    <div class="history-item">
+                        📅 ${item.date} | ⏰ ${item.time}<br>
+                        🗑 Bin: ${item.bin}<br>
+                        👷 ${item.cleaner} | ${item.status}
+                    </div>
+                `;
+            });
+
+            document.getElementById("history").innerHTML = html;
+
+        } catch (e) {
+            console.log("JSON ERROR:", e);
+            document.getElementById("history").innerHTML =
+                "❌ API is NOT returning JSON. Check Apps Script deployment.";
+        }
+    })
+    .catch(err => {
+        console.log("FETCH ERROR:", err);
+        document.getElementById("history").innerHTML =
+            "❌ Cannot connect to Google Script";
+    });
+}
+// =====================
+// INIT
+// =====================
+window.onload = function() {
+    getDutyPerson();
+    loadHistory();
+};
+
+</script>
+
+</body>
+</html>
