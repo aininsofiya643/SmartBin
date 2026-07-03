@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Smart Bin System</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="title">SMART BIN SYSTEM</div>
+
+    <div class="section-title">Select Bin</div>
+
+    <select id="binSelect"></select>
+
+    <button onclick="loadSelectedBin()">Load Bin</button>
+
+    <div id="binInfo" style="display:none;">
+
+        <div class="section-title" id="block"></div>
+        <div class="section-title" id="floor"></div>
+        <div class="section-title" id="location"></div>
+
+        <div class="section-title">👷 On Duty</div>
+        <div id="dutyPerson">-</div>
+
+        <div class="status" id="status">Status: CLEAN</div>
+
+        <div class="small">
+            Last Updated: <span id="lastUpdated">--</span>
+        </div>
+
+        <button id="cleanBtn" onclick="markClean()">Mark as CLEANED</button>
+
+        <div class="section-title">📜 Cleaning History</div>
+        <div class="history" id="history"></div>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
