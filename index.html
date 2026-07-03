@@ -186,11 +186,12 @@ function loadHistory() {
 
         data.reverse().forEach(item => {
 
+            // ✅ FIX: use ISO column (NOT formatted date)
             let d = new Date(item.date);
 
             html += `
                 <div class="history-item">
-                    📅 ${formatDate(d)} | ⏰ ${formatTime(d)}<br>
+                    📅 ${item.date} | ⏰ ${item.time}<br>
                     🗑 Bin: ${item.bin}<br>
                     👷 ${item.cleaner} | ${item.status}
                 </div>
