@@ -121,8 +121,11 @@ let lock = false;
 // ---------------- CLEAN BUTTON ----------------
 function markClean() {
 
-    if (lock) return;
-    lock = true;
+    let btn = document.getElementById("cleanBtn");
+
+    // ❌ disable immediately
+    btn.disabled = true;
+    btn.innerText = "Processing...";
 
     let now = new Date();
 
@@ -146,11 +149,19 @@ function markClean() {
 
         loadHistory();
 
-        setTimeout(() => lock = false, 8000);
+        // ✅ keep disabled after success
+        btn.innerText = "Already CLEANED";
+        btn.style.background = "gray";
+        btn.style.cursor = "not-allowed";
+
     })
     .catch(err => {
+
         console.log(err);
-        lock = false;
+
+        // ❌ if error, enable again
+        btn.disabled = false;
+        btn.innerText = "Mark as CLEANED";
     });
 }
 
