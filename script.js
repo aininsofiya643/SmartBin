@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyAiF1pMgeVoKa3rrfwA1p7gntEfAIXcczIP9yKB8mRXKxhKxPcB2KbDIhs1BqwJXsQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzcGM7yiCAv2ATsuoPLvqqhhvELabcqC9MwAtYiyLoVZnv_uuwxxGDkqEIASkmmnvCM/exec";
 
 let scannedBin = "";
 let isLocked = false;
@@ -11,12 +11,13 @@ const bins = {
     "B1-1": { block: "B", floor: "1", location: "Cafeteria" }
 };
 
-/* ================= GET BIN FROM URL ================= */
+/* ================= GET BIN FROM QR URL ================= */
 function getBinFromURL() {
-    return new URLSearchParams(window.location.search).get("bin");
+    const params = new URLSearchParams(window.location.search);
+    return params.get("bin");
 }
 
-/* ================= LOAD BIN ================= */
+/* ================= LOAD BIN INFO ================= */
 function loadBin(bin) {
 
     scannedBin = bin;
@@ -24,7 +25,7 @@ function loadBin(bin) {
     const info = bins[bin];
 
     if (!info) {
-        alert("Unknown Bin");
+        document.getElementById("binTitle").innerText = "UNKNOWN BIN";
         return;
     }
 
@@ -37,32 +38,6 @@ function loadBin(bin) {
     document.getElementById("binInfo").style.display = "block";
 
     refreshHistory();
-}
-
-/* ================= QR SCANNER ================= */
-function startScanner() {
-
-    const html5QrCode = new Html5Qrcode("reader");
-
-    Html5Qrcode.getCameras().then(devices => {
-
-        let cameraId = devices[0].id;
-
-        html5QrCode.start(
-            cameraId,
-            { fps: 10, qrbox: 250 },
-            (decodedText) => {
-
-             scannedBin = decodedText.replace("SMARTBIN:", "");
-
-// ✅ UPDATE URL so system knows bin exists
-window.history.pushState({}, "", "?bin=" + scannedBin);
-
-loadBin(scannedBin);
-            }
-        );
-
-    });
 }
 
 /* ================= CLEAN BUTTON ================= */
@@ -100,6 +75,8 @@ function markClean() {
     .catch(err => {
         console.log(err);
         isLocked = false;
+        btn.disabled = false;
+        btn.innerText = "Mark as CLEANED";
     });
 }
 
@@ -110,14 +87,10 @@ function refreshHistory() {
     .then(res => res.json())
     .then(data => {
 
-        if (JSON.stringify(data) === lastData) return;
-
-        lastData = JSON.stringify(data);
-
         let html = "";
 
         data
-        .filter(i => i.bin === scannedBin)
+        .filter(item => item.bin === scannedBin)
         .reverse()
         .forEach(item => {
 
@@ -134,13 +107,15 @@ function refreshHistory() {
     });
 }
 
-/* ================= AUTO START ================= */
+/* ================= INIT ================= */
 window.onload = function () {
 
     const bin = getBinFromURL();
 
     if (bin) {
         loadBin(bin);
+    } else {
+        document.getElementById("binTitle").innerText = "NO BIN SCANNED";
     }
 
     refreshHistory();
