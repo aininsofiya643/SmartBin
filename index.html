@@ -7,58 +7,73 @@
 body {
     font-family: Arial;
     background: #f2f2f2;
-    text-align: center;
+    margin: 0;
+    padding: 0;
 }
 
 .card {
-    background: white;
     width: 420px;
-    margin: 30px auto;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0px 0px 10px #ccc;
+    margin: 40px auto;
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
+    text-align: center;
 }
 
-h2 {
-    margin: 5px;
+.title {
+    font-size: 26px;
+    font-weight: bold;
 }
 
-.status-clean {
+.line {
+    border-top: 1px solid #ccc;
+    margin: 15px 0;
+}
+
+.section-title {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.status {
     color: green;
     font-weight: bold;
+    font-size: 18px;
 }
 
 button {
     width: 100%;
     padding: 12px;
-    background: #3498db;
+    margin-top: 15px;
+    background: #2d89ef;
     color: white;
     border: none;
-    border-radius: 8px;
-    cursor: pointer;
+    border-radius: 6px;
     font-size: 16px;
+    cursor: pointer;
 }
 
 button:hover {
-    background: #2980b9;
+    background: #1b6fce;
 }
 
-.history-box {
+.history {
     text-align: left;
-    margin-top: 15px;
+    margin-top: 10px;
 }
 
 .history-item {
     background: #f7f7f7;
     padding: 10px;
-    margin: 8px 0;
+    margin-bottom: 10px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .small {
-    color: gray;
     font-size: 12px;
+    color: gray;
 }
 </style>
 </head>
@@ -67,39 +82,43 @@ button:hover {
 
 <div class="card">
 
-    <h2>🗑 SMART BIN A2-2</h2>
+    <div class="title">SMART BIN A2-2</div>
 
-    <p><b>Block:</b> A</p>
-    <p><b>Floor:</b> 2</p>
-    <p><b>Location:</b> Near Toilet</p>
+    <div class="line"></div>
 
-    <hr>
+    <div class="section-title">Block: A</div>
+    <div class="section-title">Floor: 2</div>
+    <div class="section-title">Location: Near Toilet</div>
 
-    <h3>👷 On Duty Today</h3>
-    <h3 id="dutyPerson">Kumar</h3>
+    <div class="line"></div>
 
-    <hr>
+    <div class="section-title">👷 On Duty Today</div>
+    <div id="dutyPerson">Kumar</div>
 
-    <h3 class="status-clean" id="status">Status: CLEAN</h3>
-    <p class="small">Last Updated: <span id="lastUpdated">--</span></p>
+    <div class="line"></div>
+
+    <div class="status" id="status">Status: CLEAN</div>
+
+    <div class="small">
+        Last Updated: <span id="lastUpdated">--</span>
+    </div>
 
     <button onclick="markClean()">Mark as CLEANED</button>
 
-    <hr>
+    <div class="line"></div>
 
-    <h3>📜 Cleaning History</h3>
-    <div class="history-box" id="history">Loading...</div>
+    <div class="section-title">📜 Cleaning History</div>
+    <div class="history" id="history">Loading...</div>
 
 </div>
 
 <script>
 
-// 🔥 YOUR WORKING API
 const API_URL = "https://script.google.com/macros/s/AKfycbxuxjYrmNr-FHJchOB0W5O-1pLGudOATw6K-M8vgorNuD0Cv87ElImjQdt89leOc_gP/exec";
 
 let lock = false;
 
-// ------------------ MARK CLEAN ------------------
+// ---------------- CLEAN BUTTON ----------------
 function markClean() {
 
     if (lock) return;
@@ -135,7 +154,7 @@ function markClean() {
     });
 }
 
-// ------------------ LOAD HISTORY ------------------
+// ---------------- LOAD HISTORY ----------------
 function loadHistory() {
 
     fetch(API_URL + "?t=" + Date.now())
@@ -161,13 +180,12 @@ function loadHistory() {
 
     })
     .catch(err => {
-        console.log(err);
         document.getElementById("history").innerHTML =
-        "❌ Cannot load history";
+        "❌ Cannot connect to Google Script";
     });
 }
 
-// ------------------ TIME FORMAT ------------------
+// ---------------- TIME FORMAT ----------------
 function formatTime(date) {
 
     let h = date.getHours();
@@ -183,7 +201,6 @@ function formatTime(date) {
     return h + ":" + m + " " + ampm;
 }
 
-// auto load
 window.onload = loadHistory;
 
 </script>
