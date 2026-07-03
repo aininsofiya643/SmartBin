@@ -6,8 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="style.css">
-
-<script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 
 <body>
@@ -16,7 +14,7 @@
 
     <div class="title" id="binTitle">SMART BIN SYSTEM</div>
 
-    <div class="section-title">📡 Scan QR or open link</div>
+    <div class="section-title">📡 Loading bin...</div>
 
     <div id="binInfo" style="display:none;">
 
@@ -33,17 +31,14 @@
             Last Updated: <span id="lastUpdated">--</span>
         </div>
 
-        <button id="cleanBtn" onclick="markClean()">Mark as CLEANED</button>
+        <button id="cleanBtn" onclick="markClean()">
+            Mark as CLEANED
+        </button>
 
-        <div class="section-title">📜 History</div>
+        <div class="section-title">📜 Cleaning History</div>
         <div class="history" id="history">Loading...</div>
 
     </div>
-
-    <div class="section-title">📷 QR Scanner</div>
-    <div id="reader"></div>
-
-    <button onclick="startScanner()">Start QR Scan</button>
 
 </div>
 
