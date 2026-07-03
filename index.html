@@ -119,14 +119,14 @@ button:disabled {
 
 <script>
 
-const API_URL = "https://script.google.com/macros/s/AKfycbyhV5pi8dnOrCTBfVwiJOA68_Ow32cSpa5XNvJs7MQcLBFEuDYy5zh6dgZ7fWV2lRjj/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxI64bEIthZs7hiI7Y2hSy9ycDYbVlnM_j_1vRmGU54UEmwHZGrHG0kCXG1SsmBhakj/exec";
 
 let isLocked = false;
 
-// ---------------- CLEAN BUTTON ----------------
+// ================= CLEAN BUTTON =================
 function markClean() {
 
-    if (isLocked) return; // STOP DOUBLE CLICK
+    if (isLocked) return;
 
     isLocked = true;
 
@@ -136,10 +136,8 @@ function markClean() {
 
     let now = new Date();
 
-    // FIXED TIME FORMAT BEFORE SEND
+    // ❌ NO ISO SENT ANYMORE (IMPORTANT FIX)
     let payload = {
-        date: now.toISOString(),
-        time: now.toISOString(),
         bin: "A2-2",
         cleaner: document.getElementById("dutyPerson").innerText,
         status: "CLEANED"
@@ -150,16 +148,13 @@ function markClean() {
         body: JSON.stringify(payload)
     })
     .then(res => res.text())
-    .then((res) => {
-
-        console.log(res);
+    .then(() => {
 
         document.getElementById("status").innerText = "Status: CLEAN";
-        document.getElementById("lastUpdated").innerText = formatTime(now);
+        document.getElementById("lastUpdated").innerText = formatDate(now) + " | " + formatTime(now);
 
         loadHistory();
 
-        // LOCK FOREVER AFTER SUCCESS
         btn.innerText = "Already CLEANED";
         btn.style.background = "gray";
         btn.disabled = true;
@@ -175,7 +170,7 @@ function markClean() {
     });
 }
 
-// ---------------- LOAD HISTORY ----------------
+// ================= LOAD HISTORY =================
 function loadHistory() {
 
     fetch(API_URL + "?t=" + Date.now())
@@ -198,12 +193,13 @@ function loadHistory() {
         document.getElementById("history").innerHTML = html;
 
     })
-    .catch(err => {
+    .catch(() => {
         document.getElementById("history").innerHTML =
         "❌ Cannot load history";
     });
 }
-// ---------------- FIX DATE FORMAT (DD/MM/YYYY) ----------------
+
+// ================= FORMAT DATE =================
 function formatDate(date) {
 
     let d = date.getDate();
@@ -213,7 +209,7 @@ function formatDate(date) {
     return `${d.toString().padStart(2,'0')}/${m.toString().padStart(2,'0')}/${y}`;
 }
 
-// ---------------- FIX TIME FORMAT (3:14 AM) ----------------
+// ================= FORMAT TIME =================
 function formatTime(date) {
 
     let h = date.getHours();
@@ -232,5 +228,6 @@ function formatTime(date) {
 window.onload = loadHistory;
 
 </script>
+
 </body>
 </html>
