@@ -58,6 +58,11 @@ button:hover {
     background: #1b6fce;
 }
 
+button:disabled {
+    background: gray;
+    cursor: not-allowed;
+}
+
 .history {
     text-align: left;
     margin-top: 10px;
@@ -103,7 +108,8 @@ button:hover {
         Last Updated: <span id="lastUpdated">--</span>
     </div>
 
-<button id="cleanBtn" onclick="markClean()">Mark as CLEANED</button>
+    <button id="cleanBtn" onclick="markClean()">Mark as CLEANED</button>
+
     <div class="line"></div>
 
     <div class="section-title">📜 Cleaning History</div>
@@ -115,16 +121,18 @@ button:hover {
 
 const API_URL = "https://script.google.com/macros/s/AKfycbxuxjYrmNr-FHJchOB0W5O-1pLGudOATw6K-M8vgorNuD0Cv87ElImjQdt89leOc_gP/exec";
 
-let lock = false;
+let isLocked = false;
 
 // ---------------- CLEAN BUTTON ----------------
 function markClean() {
 
-    let btn = document.getElementById("cleanBtn");
+    if (isLocked) return; // ❌ prevent spam clicks
 
-    // ❌ disable immediately
+    isLocked = true;
+
+    let btn = document.getElementById("cleanBtn");
     btn.disabled = true;
-    btn.innerText = "Processing...";
+    btn.innerText = "Saving...";
 
     let now = new Date();
 
@@ -148,17 +156,17 @@ function markClean() {
 
         loadHistory();
 
-        // ✅ keep disabled after success
+        // ✅ LOCK PERMANENTLY AFTER SUCCESS
         btn.innerText = "Already CLEANED";
         btn.style.background = "gray";
-        btn.style.cursor = "not-allowed";
+        btn.disabled = true;
 
     })
     .catch(err => {
 
         console.log(err);
 
-        // ❌ if error, enable again
+        isLocked = false;
         btn.disabled = false;
         btn.innerText = "Mark as CLEANED";
     });
@@ -195,7 +203,7 @@ function loadHistory() {
     });
 }
 
-// ---------------- TIME FORMAT ----------------
+// ---------------- TIME FORMAT (6:12 AM) ----------------
 function formatTime(date) {
 
     let h = date.getHours();
