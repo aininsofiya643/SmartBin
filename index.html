@@ -1,66 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Smart Bin A2-2</title>
+<title>Smart Bin System</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body {
     font-family: Arial;
     background: #f2f2f2;
     margin: 0;
-    padding: 0;
+    padding: 10px;
 }
 
 .card {
-    width: 420px;
-    margin: 40px auto;
+    width: 100%;
+    max-width: 420px;
+    margin: auto;
     background: white;
-    border-radius: 10px;
-    padding: 25px;
+    border-radius: 12px;
+    padding: 16px;
     box-shadow: 0 0 12px rgba(0,0,0,0.15);
     text-align: center;
 }
 
 .title {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: bold;
-}
-
-.line {
-    border-top: 1px solid #ccc;
-    margin: 15px 0;
 }
 
 .section-title {
     font-weight: bold;
-    margin-top: 10px;
+    margin-top: 12px;
+    font-size: 15px;
 }
 
 .status {
     color: green;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 button {
     width: 100%;
-    padding: 12px;
-    margin-top: 15px;
+    padding: 14px;
+    margin-top: 12px;
     background: #2d89ef;
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 16px;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #1b6fce;
 }
 
 button:disabled {
     background: gray;
-    cursor: not-allowed;
 }
 
 .history {
@@ -75,11 +68,6 @@ button:disabled {
     border-radius: 8px;
     font-size: 13px;
 }
-
-.small {
-    font-size: 12px;
-    color: gray;
-}
 </style>
 </head>
 
@@ -87,33 +75,33 @@ button:disabled {
 
 <div class="card">
 
-    <div class="title">SMART BIN A2-2</div>
+    <div class="title" id="binTitle">SMART BIN SYSTEM</div>
 
-    <div class="line"></div>
+    <div class="section-title">📡 Loading bin...</div>
 
-    <div class="section-title">Block: A</div>
-    <div class="section-title">Floor: 2</div>
-    <div class="section-title">Location: Near Toilet</div>
+    <div id="binInfo" style="display:none;">
 
-    <div class="line"></div>
+        <div class="section-title" id="block"></div>
+        <div class="section-title" id="floor"></div>
+        <div class="section-title" id="location"></div>
 
-    <div class="section-title">👷 On Duty Today</div>
-    <div id="dutyPerson">Kumar</div>
+        <div class="section-title">👷 On Duty</div>
+        <div id="dutyPerson">Kumar</div>
 
-    <div class="line"></div>
+        <div class="status" id="status">Status: CLEAN</div>
 
-    <div class="status" id="status">Status: CLEAN</div>
+        <div class="section-title">
+            Last Updated: <span id="lastUpdated">--</span>
+        </div>
 
-    <div class="small">
-        Last Updated: <span id="lastUpdated">--</span>
+        <button id="cleanBtn" onclick="markClean()">
+            Mark as CLEANED
+        </button>
+
+        <div class="section-title">📜 History</div>
+        <div class="history" id="history">Loading...</div>
+
     </div>
-
-    <button id="cleanBtn" onclick="markClean()">Mark as CLEANED</button>
-
-    <div class="line"></div>
-
-    <div class="section-title">📜 Cleaning History</div>
-    <div class="history" id="history">Loading...</div>
 
 </div>
 
@@ -121,13 +109,39 @@ button:disabled {
 
 const API_URL = "https://script.google.com/macros/s/AKfycbyAiF1pMgeVoKa3rrfwA1p7gntEfAIXcczIP9yKB8mRXKxhKxPcB2KbDIhs1BqwJXsQ/exec";
 
+let scannedBin = "";
 let isLocked = false;
+let lastData = "";
 
-// ================= CLEAN BUTTON =================
+/* ================= GET BIN FROM URL ================= */
+function getBinFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("bin");
+}
+
+/* ================= LOAD BIN ================= */
+function loadBin(bin) {
+
+    scannedBin = bin;
+
+    document.getElementById("binTitle").innerText =
+        "SMART BIN " + bin;
+
+    document.getElementById("binInfo").style.display = "block";
+
+    document.getElementById("block").innerText = "Block: A";
+    document.getElementById("floor").innerText = "Floor: 2";
+    document.getElementById("location").innerText = "Location: Near Toilet";
+
+    document.getElementById("cleanBtn").disabled = false;
+
+    refreshHistory();
+}
+
+/* ================= CLEAN BUTTON ================= */
 function markClean() {
 
     if (isLocked) return;
-
     isLocked = true;
 
     let btn = document.getElementById("cleanBtn");
@@ -136,9 +150,8 @@ function markClean() {
 
     let now = new Date();
 
-    // ❌ NO ISO SENT ANYMORE (IMPORTANT FIX)
     let payload = {
-        bin: "A2-2",
+        bin: scannedBin,
         cleaner: document.getElementById("dutyPerson").innerText,
         status: "CLEANED"
     };
@@ -151,31 +164,30 @@ function markClean() {
     .then(() => {
 
         document.getElementById("status").innerText = "Status: CLEAN";
-        document.getElementById("lastUpdated").innerText = formatDate(now) + " | " + formatTime(now);
 
-        loadHistory();
+        document.getElementById("lastUpdated").innerText =
+            now.toLocaleTimeString();
+
+        refreshHistory();
 
         btn.innerText = "Already CLEANED";
-        btn.style.background = "gray";
-        btn.disabled = true;
-
     })
     .catch(err => {
-
         console.log(err);
-
         isLocked = false;
-        btn.disabled = false;
-        btn.innerText = "Mark as CLEANED";
     });
 }
 
-// ================= LOAD HISTORY =================
-function loadHistory() {
+/* ================= HISTORY ================= */
+function refreshHistory() {
 
     fetch(API_URL + "?t=" + Date.now())
     .then(res => res.json())
     .then(data => {
+
+        if (JSON.stringify(data) === lastData) return;
+
+        lastData = JSON.stringify(data);
 
         let html = "";
 
@@ -191,41 +203,28 @@ function loadHistory() {
         });
 
         document.getElementById("history").innerHTML = html;
-
     })
-    .catch(() => {
-        document.getElementById("history").innerHTML =
-        "❌ Cannot load history";
+    .catch(err => {
+        console.log("History error:", err);
     });
 }
 
-// ================= FORMAT DATE =================
-function formatDate(date) {
+/* ================= AUTO START ================= */
+window.onload = function () {
 
-    let d = date.getDate();
-    let m = date.getMonth() + 1;
-    let y = date.getFullYear();
+    const bin = getBinFromURL();
 
-    return `${d.toString().padStart(2,'0')}/${m.toString().padStart(2,'0')}/${y}`;
-}
+    if (bin) {
+        loadBin(bin);
+    } else {
+        document.getElementById("binTitle").innerText =
+            "NO BIN SCANNED";
+    }
 
-// ================= FORMAT TIME =================
-function formatTime(date) {
+    refreshHistory();
+};
 
-    let h = date.getHours();
-    let m = date.getMinutes();
-
-    let ampm = h >= 12 ? "PM" : "AM";
-
-    h = h % 12;
-    h = h ? h : 12;
-
-    m = m.toString().padStart(2, '0');
-
-    return `${h}:${m} ${ampm}`;
-}
-
-window.onload = loadHistory;
+setInterval(refreshHistory, 5000);
 
 </script>
 
