@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwizfnyuFZWHeZLNYBnSXP7qS7ypGlUmE9erULxr6sLlbU-cyujPH-XOM7vlwyfoHs/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyWVzUufc0Wvg9qHc6PTP8rty4MCxKuzEfxZVF_oA_HXRZuUVItsQ03_BQbnweMe8sk/exec";
 
 let selectedBin = "";
 let isLocked = false;
