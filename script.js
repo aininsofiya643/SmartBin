@@ -2,56 +2,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbyWVzUufc0Wvg9qHc6PTP8r
 
 let selectedBin = "";
 let isLocked = false;
-/* ================= CLEAN BUTTON ================= */
-function markClean() {
 
-    if (isLocked) return;
-    isLocked = true;
-
-    let btn = document.getElementById("cleanBtn");
-    btn.disabled = true;
-    btn.innerText = "Saving...";
-
-    let payload = {
-        bin: selectedBin,
-        cleaner: document.getElementById("dutyPerson").innerText,
-        status: "CLEANED"
-    };
-
-    fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-    })
-    .then(res => res.text())
-    .then(() => {
-
-        // Immediately update UI — no need to wait for a re-fetch
-        btn.innerText = "Already CLEANED";
-        btn.style.background = "gray";
-        btn.disabled = true;
-        isLocked = true;
-
-        document.getElementById("status").innerText = "Status: CLEANED";
-        document.getElementById("lastUpdated").innerText = new Date().toLocaleString();
-
-        // Refresh history list in the background (doesn't affect button state)
-        fetch(API_URL + "?bin=" + selectedBin + "&t=" + Date.now())
-        .then(res => res.json())
-        .then(data => {
-            if (!data.error) {
-                loadHistory(data.history);
-            }
-        });
-
-    })
-    .catch(err => {
-        console.log(err);
-        isLocked = false;
-        btn.disabled = false;
-        btn.innerText = "Mark as CLEANED";
-        btn.style.background = "#2d89ef";
-    });
-}
 /* ================= LOAD BINS ================= */
 function loadBins() {
     fetch(API_URL + "?mode=bins")
@@ -130,6 +81,7 @@ function loadSelectedBin() {
 
 /* ================= CLEAN BUTTON ================= */
 /* ================= CLEAN BUTTON ================= */
+/* ================= CLEAN BUTTON ================= */
 function markClean() {
 
     if (isLocked) return;
@@ -178,6 +130,7 @@ function markClean() {
         btn.innerText = "Mark as CLEANED";
         btn.style.background = "#2d89ef";
     });
+}
 }/* ================= HISTORY ================= */
 function loadHistory(history) {
 
