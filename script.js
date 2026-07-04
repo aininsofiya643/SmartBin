@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyWVzUufc0Wvg9qHc6PTP8rty4MCxKuzEfxZVF_oA_HXRZuUVItsQ03_BQbnweMe8sk/exec";
+const API_URL = "PASTE_YOUR_DEPLOYMENT_URL_HERE";
 
 let selectedBin = "";
 let isLocked = false;
@@ -16,7 +16,6 @@ function loadBins() {
     });
 }
 
-/* ================= LOAD SELECTED BIN ================= */
 /* ================= LOAD SELECTED BIN ================= */
 function loadSelectedBin() {
 
@@ -53,6 +52,21 @@ function loadSelectedBin() {
         document.getElementById("status").innerText = "Status: " + data.status;
         document.getElementById("lastUpdated").innerText = data.lastUpdated;
 
+        // ---- Set button state based on ACTUAL current status ----
+        let cleanBtn = document.getElementById("cleanBtn");
+
+        if (data.status === "CLEANED") {
+            cleanBtn.disabled = true;
+            cleanBtn.innerText = "Already CLEANED";
+            cleanBtn.style.background = "gray";
+            isLocked = true;
+        } else {
+            cleanBtn.disabled = false;
+            cleanBtn.innerText = "Mark as CLEANED";
+            cleanBtn.style.background = "#2d89ef";
+            isLocked = false;
+        }
+
         loadHistory(data.history);
     })
     .catch(err => {
@@ -63,6 +77,7 @@ function loadSelectedBin() {
         loadBtn.classList.remove("loading-btn");
     });
 }
+
 /* ================= CLEAN BUTTON ================= */
 function markClean() {
 
@@ -86,20 +101,9 @@ function markClean() {
     .then(res => res.text())
     .then(() => {
 
-        btn.innerText = "CLEANED";
-        btn.style.background = "gray";
-
-        document.getElementById("status").innerText = "Status: CLEAN";
-
-        // reload fresh data (updates last updated + history properly)
+        // Reload fresh data from server — this will correctly set
+        // button to "Already CLEANED" + disabled, and stay that way
         loadSelectedBin();
-
-        setTimeout(() => {
-            btn.disabled = false;
-            btn.innerText = "Mark as CLEANED";
-            btn.style.background = "#2d89ef";
-            isLocked = false;
-        }, 5000);
 
     })
     .catch(err => {
