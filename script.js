@@ -1,4 +1,4 @@
-const API_URL = "PASTE_YOUR_DEPLOYMENT_URL_HERE";
+const API_URL = "https://script.google.com/macros/s/AKfycbyWVzUufc0Wvg9qHc6PTP8rty4MCxKuzEfxZVF_oA_HXRZuUVItsQ03_BQbnweMe8sk/exec";
 
 let selectedBin = "";
 let isLocked = false;
