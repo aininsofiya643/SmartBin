@@ -52,22 +52,23 @@ function loadSelectedBin() {
         document.getElementById("status").innerText = "Status: " + data.status;
         document.getElementById("lastUpdated").innerText = data.lastUpdated;
 
-        // ---- Set button state based on ACTUAL current status ----
-        let cleanBtn = document.getElementById("cleanBtn");
+        loadHistory(data.history);
+
+        // ---- Sync button state with actual backend status ----
+        let btn = document.getElementById("cleanBtn");
 
         if (data.status === "CLEANED") {
-            cleanBtn.disabled = true;
-            cleanBtn.innerText = "Already CLEANED";
-            cleanBtn.style.background = "gray";
+            btn.disabled = true;
+            btn.innerText = "Already CLEANED";
+            btn.style.background = "gray";
             isLocked = true;
         } else {
-            cleanBtn.disabled = false;
-            cleanBtn.innerText = "Mark as CLEANED";
-            cleanBtn.style.background = "#2d89ef";
+            btn.disabled = false;
+            btn.innerText = "Mark as CLEANED";
+            btn.style.background = "#2d89ef";
             isLocked = false;
         }
 
-        loadHistory(data.history);
     })
     .catch(err => {
         console.log(err);
@@ -78,6 +79,7 @@ function loadSelectedBin() {
     });
 }
 
+/* ================= CLEAN BUTTON ================= */
 /* ================= CLEAN BUTTON ================= */
 function markClean() {
 
@@ -101,9 +103,23 @@ function markClean() {
     .then(res => res.text())
     .then(() => {
 
-        // Reload fresh data from server — this will correctly set
-        // button to "Already CLEANED" + disabled, and stay that way
-        loadSelectedBin();
+        // Immediately update UI — no need to wait for a re-fetch
+        btn.innerText = "Already CLEANED";
+        btn.style.background = "gray";
+        btn.disabled = true;
+        isLocked = true;
+
+        document.getElementById("status").innerText = "Status: CLEANED";
+        document.getElementById("lastUpdated").innerText = new Date().toLocaleString();
+
+        // Refresh history list in the background (doesn't affect button state)
+        fetch(API_URL + "?bin=" + selectedBin + "&t=" + Date.now())
+        .then(res => res.json())
+        .then(data => {
+            if (!data.error) {
+                loadHistory(data.history);
+            }
+        });
 
     })
     .catch(err => {
@@ -111,10 +127,9 @@ function markClean() {
         isLocked = false;
         btn.disabled = false;
         btn.innerText = "Mark as CLEANED";
+        btn.style.background = "#2d89ef";
     });
-}
-
-/* ================= HISTORY ================= */
+}/* ================= HISTORY ================= */
 function loadHistory(history) {
 
     let html = "";
