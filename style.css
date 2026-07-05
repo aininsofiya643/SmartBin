@@ -7,6 +7,134 @@ body {
     justify-content: center;
     touch-action: manipulation;
 }
+body {
+    font-family: Arial;
+    background: #f2f2f2;
+    margin: 0;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    touch-action: manipulation;
+}
+
+.card {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.12);
+    text-align: center;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.line {
+    border-top: 1px solid #ddd;
+    margin: 14px 0;
+}
+
+.section-title {
+    font-weight: bold;
+    margin-top: 8px;
+    font-size: 14px;
+    word-wrap: break-word;
+}
+
+select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    min-height: 48px;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 12px;
+    background: #2d89ef;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    min-height: 48px;
+}
+
+button:disabled {
+    background: gray;
+    cursor: not-allowed;
+}
+
+.status {
+    color: green;
+    font-weight: bold;
+    font-size: 17px;
+    margin-top: 10px;
+    word-wrap: break-word;
+}
+
+.history {
+    text-align: left;
+    margin-top: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.history-item {
+    background: #f7f7f7;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    word-wrap: break-word;
+}
+
+.small {
+    font-size: 12px;
+    color: gray;
+    margin-top: 4px;
+    word-wrap: break-word;
+}
+
+.loading-btn {
+    background: #90b8e8 !important;
+    position: relative;
+}
+
+.loading-btn::after {
+    content: "";
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-left: 8px;
+    border: 2px solid white;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.fade-in {
+    animation: fadeIn 0.35s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
 .card {
     width: 100%;
