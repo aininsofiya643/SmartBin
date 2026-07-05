@@ -102,7 +102,7 @@ function markClean() {
         btn.disabled = true;
         isLocked = true;
 
-        document.getElementById("status").innerText = "Status: CLEANED";
+        document.getElementById("status").innerText = "Status: FULL";
 
         document.getElementById("lastUpdated").innerText = new Date().toLocaleString();
 
