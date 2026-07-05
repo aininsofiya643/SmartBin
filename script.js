@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzsGObKsM96Nr7dsd-JqX0P8TSoWlCBeCllTLdCYa9lGTTzZhN2ma6NH_SMy1DjnIYy/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzths7Eq2k3PY14wHJ8Zx834K-sKQjTsWa1tWWwR17tVSxXx9gtliUlb21cLZRU17-P/exec";
 
 let selectedBin = "";
 let isLocked = false;
@@ -113,14 +113,16 @@ function markClean() {
         document.getElementById("status").innerText = "Status: CLEANED";
         document.getElementById("lastUpdated").innerText = new Date().toLocaleString();
 
-        // Refresh history list in the background (doesn't affect button state)
-        fetch(API_URL + "?bin=" + selectedBin + "&t=" + Date.now())
-        .then(res => res.json())
-        .then(data => {
-            if (!data.error) {
-                loadHistory(data.history);
-            }
-        });
+      // Refresh everything from the server — gets correctly formatted
+// lastUpdated and history in one go, no guessing on the frontend
+fetch(API_URL + "?bin=" + selectedBin + "&t=" + Date.now())
+.then(res => res.json())
+.then(data => {
+    if (!data.error) {
+        document.getElementById("lastUpdated").innerText = data.lastUpdated;
+        loadHistory(data.history);
+    }
+});
 
     })
     .catch(err => {
