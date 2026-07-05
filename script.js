@@ -46,16 +46,15 @@ function loadSelectedBin() {
         binInfo.classList.add("fade-in");
 
         document.getElementById("block").innerText = "Block: " + data.bin.block;
-        document.getElementById("floor").innerText = "Floor: " + data.bin.floor;
-        document.getElementById("location").innerText = "Location: " + data.bin.location;
-        document.getElementById("dutyPerson").innerText = data.duty;
-        document.getElementById("status").innerText = "Status: " + data.status;
-        document.getElementById("lastUpdated").innerText = data.lastUpdated;
+document.getElementById("floor").innerText = "Floor: " + data.bin.floor;
+document.getElementById("location").innerText = "Location: " + data.bin.location;
+document.getElementById("dutyPerson").innerText = data.duty;
+document.getElementById("status").innerText = "Status: FULL";
+document.getElementById("lastUpdated").innerText = data.lastUpdated;
 
-        loadHistory(data.history);
+loadHistory(data.history);
 
 // ---- Always start fresh and clickable on load/reload ----
-
 let btn = document.getElementById("cleanBtn");
 btn.disabled = false;
 btn.innerText = "Mark as CLEANED";
