@@ -54,20 +54,13 @@ function loadSelectedBin() {
 
         loadHistory(data.history);
 
-        // ---- Sync button state with actual backend status ----
-        let btn = document.getElementById("cleanBtn");
+// ---- Always start fresh and clickable on load/reload ----
 
-        if (data.status === "CLEANED") {
-            btn.disabled = true;
-            btn.innerText = "Already CLEANED";
-            btn.style.background = "gray";
-            isLocked = true;
-        } else {
-            btn.disabled = false;
-            btn.innerText = "Mark as CLEANED";
-            btn.style.background = "#2d89ef";
-            isLocked = false;
-        }
+let btn = document.getElementById("cleanBtn");
+btn.disabled = false;
+btn.innerText = "Mark as CLEANED";
+btn.style.background = "#2d89ef";
+isLocked = false;
 
     })
     .catch(err => {
@@ -79,7 +72,6 @@ function loadSelectedBin() {
     });
 }
 
-/* ================= CLEAN BUTTON ================= */
 /* ================= CLEAN BUTTON ================= */
 /* ================= CLEAN BUTTON ================= */
 function markClean() {
@@ -111,9 +103,11 @@ function markClean() {
         isLocked = true;
 
         document.getElementById("status").innerText = "Status: CLEANED";
+
         document.getElementById("lastUpdated").innerText = new Date().toLocaleString();
 
-      // Refresh everything from the server — gets correctly formatted
+
+     // Refresh everything from the server — gets correctly formatted
 // lastUpdated and history in one go, no guessing on the frontend
 fetch(API_URL + "?bin=" + selectedBin + "&t=" + Date.now())
 .then(res => res.json())
@@ -123,7 +117,6 @@ fetch(API_URL + "?bin=" + selectedBin + "&t=" + Date.now())
         loadHistory(data.history);
     }
 });
-
     })
     .catch(err => {
         console.log(err);
@@ -132,7 +125,6 @@ fetch(API_URL + "?bin=" + selectedBin + "&t=" + Date.now())
         btn.innerText = "Mark as CLEANED";
         btn.style.background = "#2d89ef";
     });
-}
 }/* ================= HISTORY ================= */
 function loadHistory(history) {
 
